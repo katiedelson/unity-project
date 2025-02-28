@@ -11,8 +11,6 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
     public float deceleration = 2.0f;
     public float maximumWalkVelocity = 0.5f;
     public float maximumRunVelocity = 2.0f;
-    public float jumpForce = 5.0f;
-    private bool isJumping = false;
 
     
     // increase performance
@@ -139,5 +137,10 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
         // set the parameters to our local variable values
         animator.SetFloat(VelocityZHash, velocityZ);
         animator.SetFloat(VelocityXHash, velocityX);
+    }
+
+    public void OnJumpAnimationEnd()
+    {
+        animator.SetBool(IsJumpingHash, false);
     }
 }
