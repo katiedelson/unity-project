@@ -9,17 +9,16 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
 
     public float acceleration = 2.0f;
     public float deceleration = 2.0f;
-
     public float maximumWalkVelocity = 0.5f;
-
     public float maximumRunVelocity = 2.0f;
+    public float jumpForce = 5.0f;
+    private bool isJumping = false;
+
     
     // increase performance
     private int VelocityZHash;
     private int VelocityXHash;
-    
-    
-    
+	private int IsJumpingHash;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -30,6 +29,7 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
         // increase performance
         VelocityZHash = Animator.StringToHash("VelocityZ");
         VelocityXHash = Animator.StringToHash("VelocityX");
+		IsJumpingHash = Animator.StringToHash("isJumping");
     }
     
     // handles acceration and deceleration
@@ -76,6 +76,7 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
     void lockOrResetVelocity(bool forwardPressed, bool leftPressed, bool rightPressed, bool runPressed,
         float currentMaxVelocity)
     {
+        
         // reset velocity Z
         if (!forwardPressed && velocityZ < 0.0f)
         {
@@ -119,6 +120,7 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
         bool leftPressed = Input.GetKey(KeyCode.A);
         bool rightPressed = Input.GetKey(KeyCode.D);
         bool runPressed = Input.GetKey(KeyCode.LeftShift);
+		bool jumpPressed = Input.GetKeyDown(KeyCode.Space);
         
         // set current maxVelocity
         float currentMaxVelocity = runPressed ? maximumRunVelocity : maximumWalkVelocity;
@@ -126,6 +128,13 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
         // handle changes in velocity
         changeVelocity(forwardPressed, leftPressed, rightPressed, runPressed, currentMaxVelocity);
         lockOrResetVelocity(forwardPressed, leftPressed, rightPressed, runPressed, currentMaxVelocity);
+
+		if (jumpPressed)
+        {
+            Debug.Log("jump triggered");
+            animator.SetBool(IsJumpingHash, true);
+		}
+        
         
         // set the parameters to our local variable values
         animator.SetFloat(VelocityZHash, velocityZ);
