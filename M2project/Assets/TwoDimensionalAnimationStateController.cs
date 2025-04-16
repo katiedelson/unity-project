@@ -109,12 +109,12 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
+    // update is called once per frame
     void Update()
     {
         // input will be true if player is pressing on the passed in key parameter
         // get key input from player
-        bool forwardPressed = Input.GetKey(KeyCode.W);
+        bool forwardPressed = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S);
         bool leftPressed = Input.GetKey(KeyCode.A);
         bool rightPressed = Input.GetKey(KeyCode.D);
         bool runPressed = Input.GetKey(KeyCode.LeftShift);
