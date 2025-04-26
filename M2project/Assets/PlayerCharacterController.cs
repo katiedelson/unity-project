@@ -12,6 +12,11 @@ public class PlayerCharacterController : MonoBehaviour
     public float runSpeed = 6.0f;
     public float rotationSpeed = 10.0f;
     
+    public float accelerationTime = 0.3f;
+    public float decelerationTime = 0.2f;
+    private float currentSpeedMultiplier = 0f;
+    private bool wasRunning = false;
+    
     // jump parameters
     public float jumpForce = 8.0f;
     public float gravity = 20.0f;
@@ -72,40 +77,69 @@ public class PlayerCharacterController : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
-        
+    
         // calculate move direction relative to camera orientation
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
-        
+    
         // project vectors onto the horizontal plane
         forward.y = 0;
         right.y = 0;
         forward.Normalize();
         right.Normalize();
-        
+    
         // create movement vector
         Vector3 desiredMoveDirection = forward * verticalInput + right * horizontalInput;
-        
-        // set speed based on running state
-        float currentSpeed = isRunning ? runSpeed : walkSpeed;
-        
-        // set horizontal movement (keeping vertical velocity)
+    
+        // Smooth transition between walking and running
+        float targetSpeedMultiplier = 0f;
+    
         if (desiredMoveDirection.magnitude > 0.1f)
         {
+            // Determine target speed based on running state
+            targetSpeedMultiplier = isRunning ? 1.0f : walkSpeed / runSpeed;
+        
+            // Apply acceleration or deceleration
+            if (isRunning && !wasRunning)
+            {
+                // Accelerate to running
+                currentSpeedMultiplier = Mathf.Lerp(currentSpeedMultiplier, targetSpeedMultiplier, 
+                                               Time.deltaTime / accelerationTime);
+            }
+            else if (!isRunning && wasRunning)
+            {
+                // Decelerate to walking
+                currentSpeedMultiplier = Mathf.Lerp(currentSpeedMultiplier, targetSpeedMultiplier, 
+                                               Time.deltaTime / decelerationTime);
+            }
+            else
+            {
+                // Maintain current state but still smooth
+                currentSpeedMultiplier = Mathf.Lerp(currentSpeedMultiplier, targetSpeedMultiplier, 
+                                               Time.deltaTime * 5f);
+            }
+        
             // rotate character to face movement direction
             Quaternion targetRotation = Quaternion.LookRotation(desiredMoveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            
+        
+            // Calculate actual speed
+            float actualSpeed = Mathf.Lerp(walkSpeed, runSpeed, currentSpeedMultiplier);
+        
             // set move direction with current speed
-            moveDirection.x = desiredMoveDirection.x * currentSpeed;
-            moveDirection.z = desiredMoveDirection.z * currentSpeed;
+            moveDirection.x = desiredMoveDirection.x * actualSpeed;
+            moveDirection.z = desiredMoveDirection.z * actualSpeed;
         }
         else
         {
-            // no input, stop horizontal movement
-            moveDirection.x = 0;
-            moveDirection.z = 0;
+            // no input, gradually stop horizontal movement
+            moveDirection.x = Mathf.Lerp(moveDirection.x, 0, Time.deltaTime * 10f);
+            moveDirection.z = Mathf.Lerp(moveDirection.z, 0, Time.deltaTime * 10f);
+            currentSpeedMultiplier = Mathf.Lerp(currentSpeedMultiplier, 0, Time.deltaTime * 5f);
         }
+    
+        // Update previous state
+        wasRunning = isRunning;
     }
     
     void HandleJumpInput()
