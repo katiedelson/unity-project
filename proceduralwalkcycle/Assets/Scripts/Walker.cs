@@ -8,12 +8,12 @@ public class Walker : MonoBehaviour
     public Transform rightFootTarget;
     public AnimationCurve horizontalCurve;
     public AnimationCurve verticalCurve;
-    public AnimationCurve jumpCurve; // Animation curve for jump height
-    public float jumpHeight = 2f; // Maximum jump height
-    public float jumpDuration = 1f; // How long the jump lasts
-    public KeyCode jumpKey = KeyCode.Space; // Key to trigger jump
-    public KeyCode walkKey = KeyCode.W; // Key to trigger walking
-    public float walkSpeed = 1f; // Multiplier for walk speed
+    public AnimationCurve jumpCurve;
+    public float jumpHeight = 2f; 
+    public float jumpDuration = 1f; 
+    public KeyCode jumpKey = KeyCode.Space;
+    public KeyCode walkKey = KeyCode.W;
+    public float walkSpeed = 1f;
     public float jumpForwardSpeed = 2f;
     
     private Vector3 leftTargetOffset;
@@ -28,17 +28,16 @@ public class Walker : MonoBehaviour
     private Vector3 rightFootJumpPos;
     private bool wasWalkingWhenJumped = false;
     
-    // Animation time tracking
+    // animation time tracking
     private float animationTime = 0f;
     private bool isWalking = false;
     
-    // Start is called before the first frame update
     void Start()
     {
         leftTargetOffset = leftFootTarget.localPosition;
         rightTargetOffset = rightFootTarget.localPosition;
         
-        // If no jump curve is assigned, create a default one
+        // if no jump curve is assigned, create a default one
         if (jumpCurve == null || jumpCurve.keys.Length == 0)
         {
             jumpCurve = new AnimationCurve(
@@ -49,19 +48,16 @@ public class Walker : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        // Check if walking key is pressed
         isWalking = Input.GetKey(walkKey);
         
-        // Only update animation time when walking or jumping
+        // only update when walking or jumping
         if (isWalking || isJumping)
         {
             animationTime += Time.deltaTime * walkSpeed;
         }
         
-        // Check for jump input - allow jump anytime, whether walking or not
         if (Input.GetKeyDown(jumpKey) && !isJumping)
         {
             StartJump();
@@ -83,11 +79,9 @@ public class Walker : MonoBehaviour
         jumpStartTime = Time.time;
         jumpStartPosition = transform.position;
         
-        // Store the current foot positions to use during jump
         leftFootJumpPos = leftFootTarget.localPosition;
         rightFootJumpPos = rightFootTarget.localPosition;
         
-        // Remember if we were walking when jump started
         wasWalkingWhenJumped = isWalking;
     }
 
@@ -97,10 +91,8 @@ public class Walker : MonoBehaviour
         
         if (jumpProgress >= 1.0f)
         {
-            // Jump is complete
             isJumping = false;
             
-            // Make sure we're grounded after landing
             RaycastHit hit;
             if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out hit, 10f))
             {
@@ -109,20 +101,17 @@ public class Walker : MonoBehaviour
             return;
         }
 
-        // Apply jump height based on animation curve
+        // applying height based on curve
         float jumpFactor = jumpCurve.Evaluate(jumpProgress);
         Vector3 currentPos = transform.position;
         currentPos.y = jumpStartPosition.y + jumpHeight * jumpFactor;
         transform.position = currentPos;
         
-        // Move the character forward during jump ONLY if W is pressed
-        // Either it was pressed when jump started or it's pressed now
         if (isWalking)
         {
             transform.position += transform.forward * Time.deltaTime * walkSpeed * jumpForwardSpeed;
         }
         
-        // During jump, animate feet to look natural
         float legTuckFactor = Mathf.Sin(jumpProgress * Mathf.PI) * 0.5f;
         
         Vector3 jumpOffset = transform.InverseTransformVector(transform.up) * legTuckFactor;
@@ -142,7 +131,6 @@ public class Walker : MonoBehaviour
 
     void UpdateWalk()
     {
-        // Use our controlled animation time instead of Time.time for consistent animations
         float leftLegForwardMovement = horizontalCurve.Evaluate(animationTime);
         float rightLegForwardMovement = horizontalCurve.Evaluate(animationTime - 1);
 
@@ -157,7 +145,6 @@ public class Walker : MonoBehaviour
         float leftLegDirection = leftLegForwardMovement - leftLegLast;
         float rightLegDirection = rightLegForwardMovement - rightLegLast;
 
-        // Only move forward if walking key is pressed
         if (isWalking)
         {
             RaycastHit hit;
@@ -175,18 +162,14 @@ public class Walker : MonoBehaviour
         }
         else
         {
-            // When not walking, keep feet in a neutral idle position
-            // But still position on ground
             RaycastHit hit;
             
-            // Place left foot at a slightly offset idle position
             Vector3 leftIdlePos = leftTargetOffset;
             if (Physics.Raycast(transform.position + transform.TransformVector(leftIdlePos) + Vector3.up, Vector3.down, out hit, Mathf.Infinity))
             {
                 leftFootTarget.position = hit.point;
             }
             
-            // Place right foot at a slightly offset idle position
             Vector3 rightIdlePos = rightTargetOffset;
             if (Physics.Raycast(transform.position + transform.TransformVector(rightIdlePos) + Vector3.up, Vector3.down, out hit, Mathf.Infinity))
             {
