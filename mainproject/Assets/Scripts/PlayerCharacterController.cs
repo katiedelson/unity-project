@@ -10,14 +10,14 @@ public class PlayerCharacterController : MonoBehaviour
 
     // movement parameters
     public float walkSpeed = 2.0f; 
-    public float runSpeed = 6.0f;
+    public float runSpeed = 4.0f;
     public float rotationSpeed = 10.0f;
    
-    public float groundCheckDistance = 0.2f;
+    public float groundCheckDistance = 0.01f;
     
     // jump parameters
-    public float jumpForce = 8.0f;
-    public float gravity = 15.0f;
+    public float jumpForce = 5.0f;
+    public float gravity = 17.0f;
     [Header("Jump Curve Settings")] 
     public AnimationCurve jumpCurve;
     public float jumpDuration = 0.5f; // how long the curve evaluation lasts
@@ -27,7 +27,7 @@ public class PlayerCharacterController : MonoBehaviour
     [Header("Jump Tilt Settings")]
     public float jumpForwardTiltAngle = 10f; // forward tilt when taking off
     public float jumpBackwardTiltAngle = -50f; // backward tilt when falling
-    public float tiltSpeed = 5f; // how quickly the character tilts
+    public float tiltSpeed = 0.6f; // how quickly the character tilts
     public float minHorizontalSpeedForTilt = 3f; // minimum horizontal speed required for tilt
   
     [Header("Landing Animation Settings")]

@@ -11,15 +11,15 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
     private float jumpProgress = 0.0f;
 
     [Header("Movement Settings")]
-    public float acceleration = 1.0f;
-    public float deceleration = 3.0f;
+    public float acceleration = 3.0f;
+    public float deceleration = 4.0f;
     public float maximumWalkVelocity = 0.5f;
     public float maximumRunVelocity = 2.0f;
 
     [Header("Jump Blend Settings")]
     public float jumpBlendDuration = 0.5f; // duration for going from idle to full jump
     public float landingBlendDuration = 1.2f; // duration for landing animation
-    public float crouchPosition = 0.4f; // customizable crouch position in blend tree
+    public float crouchPosition = 0.5f; // customizable crouch position in blend tree
     
     // increase performance
     private int VelocityZHash;
