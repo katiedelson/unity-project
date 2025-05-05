@@ -49,11 +49,9 @@ public class PlayerCharacterController : MonoBehaviour
     
     void Start()
     {
-        // get component references
         characterController = GetComponent<CharacterController>();
         animationController = GetComponent<TwoDimensionalAnimationStateController>();
         
-        // get main camera transform for movement direction
         cameraTransform = Camera.main.transform;
         
         if (animationController == null)
@@ -71,16 +69,14 @@ public class PlayerCharacterController : MonoBehaviour
         HandleJumpInput();
         ApplyGravity();
         
-        // track if ascending or descending
         isAscending = verticalVelocity > 0;
         
-        ApplyJumpTilt(); // Apply character tilting
+        ApplyJumpTilt();
         MoveCharacter();
         
         // handle landing states
         if (!wasGrounded && isGrounded)
         {
-            // call the jump animation end function
             animationController.OnJumpAnimationEnd();
             isLandingDetected = false;
             isJumping = false;
@@ -118,7 +114,7 @@ public class PlayerCharacterController : MonoBehaviour
     
     void HandleMovementInput()
     {
-        // get input from keyboard
+        // keyboard input
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
         bool isRunning = Input.GetKey(KeyCode.LeftShift);
@@ -127,16 +123,13 @@ public class PlayerCharacterController : MonoBehaviour
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
         
-        // project vectors onto the horizontal plane
         forward.y = 0;
         right.y = 0;
         forward.Normalize();
         right.Normalize();
         
-        // create movement vector
         Vector3 desiredMoveDirection = forward * verticalInput + right * horizontalInput;
         
-        // calculate base move speed
         float currentSpeed = isRunning ? runSpeed : walkSpeed;
         
         // set horizontal movement (keeping vertical velocity)
@@ -145,7 +138,6 @@ public class PlayerCharacterController : MonoBehaviour
             // rotate character to face movement direction
             Quaternion targetRotation = Quaternion.LookRotation(desiredMoveDirection);
             
-            // only rotate around Y axis while in air (preserve tilt)
             if (!isGrounded)
             {
                 float currentXRotation = transform.rotation.eulerAngles.x;
@@ -161,12 +153,9 @@ public class PlayerCharacterController : MonoBehaviour
         }
         else
         {
-            // no input, stop horizontal movement
             moveDirection.x = 0;
             moveDirection.z = 0;
         }
-        
-        // calculate horizontal speed magnitude (for tilt condition)
         horizontalSpeed = new Vector2(moveDirection.x, moveDirection.z).magnitude;
     }
     
@@ -175,7 +164,6 @@ public class PlayerCharacterController : MonoBehaviour
         // start jump when grounded and space is pressed
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
-            // initialize jump
             isJumping = true;
             jumpTimer = 0f;
             isLandingDetected = false;
@@ -183,26 +171,21 @@ public class PlayerCharacterController : MonoBehaviour
             // apply initial jump velocity
             verticalVelocity = jumpForce * jumpCurve.Evaluate(0f);
             
-            // notify animation controller to start jump
             animationController.StartJump();
         }
         
-        // handle ongoing jump
         if (isJumping)
         {
             jumpTimer += Time.deltaTime;
             
             if (jumpTimer <= jumpDuration)
             {
-                // normalize time for curve evaluation (0 to 1)
                 float normalizedTime = jumpTimer / jumpDuration;
                 
-                // apply the curved jump force
                 verticalVelocity = jumpForce * jumpCurve.Evaluate(normalizedTime);
             }
             else
             {
-                // jump curve duration complete, now start falling
                 isJumping = false;
             }
         }
@@ -210,18 +193,15 @@ public class PlayerCharacterController : MonoBehaviour
     
     void ApplyGravity()
     {
-        // apply gravity when not in jump phase
         if (!isGrounded && !isJumping)
         {
             verticalVelocity -= gravity * Time.deltaTime;
         }
         else if (isGrounded && !isJumping)
         {
-            // reset vertical velocity on ground
             verticalVelocity = -0.5f;
         }
         
-        // update the y component of moveDirection
         moveDirection.y = verticalVelocity;
     }
     
@@ -236,12 +216,12 @@ public class PlayerCharacterController : MonoBehaviour
         {
             if (isAscending)
             {
-                // forward tilt during upward movement
+                // forward tilt 
                 targetTilt = jumpForwardTiltAngle;
             }
             else
             {
-                // backward tilt during downward movement
+                // backward tilt
                 targetTilt = jumpBackwardTiltAngle;
             }
         }
@@ -249,21 +229,18 @@ public class PlayerCharacterController : MonoBehaviour
         // get current rotation
         Vector3 currentRotation = transform.rotation.eulerAngles;
         
-        // handle wraparound for angles (-180 to 180 range)
         float currentXAngle = currentRotation.x;
         if (currentXAngle > 180)
             currentXAngle -= 360;
             
-        // smoothly interpolate to target tilt angle
         float newXRotation = Mathf.LerpAngle(currentXAngle, targetTilt, Time.deltaTime * tiltSpeed);
         
-        // apply the rotation (keeping Y rotation for direction and Z @ 0)
+        // apply the rotation
         transform.rotation = Quaternion.Euler(newXRotation, currentRotation.y, 0f);
     }
     
     void MoveCharacter()
     {
-        // move the character using the character controller
         characterController.Move(moveDirection * Time.deltaTime);
     }
 }
