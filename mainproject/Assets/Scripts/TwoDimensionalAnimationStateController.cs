@@ -194,10 +194,10 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
     void Update()
     {
         // key input
-        bool forwardPressed = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S);
-        bool leftPressed = Input.GetKey(KeyCode.A);
-        bool rightPressed = Input.GetKey(KeyCode.D);
-        bool runPressed = Input.GetKey(KeyCode.LeftShift);
+        bool forwardPressed = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow);
+        bool leftPressed = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
+        bool rightPressed = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
+        bool runPressed = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         bool jumpPressed = Input.GetKeyDown(KeyCode.Space);
         
         float currentMaxVelocity = runPressed ? maximumRunVelocity : maximumWalkVelocity;

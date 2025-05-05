@@ -56,8 +56,8 @@ public class PlayerCharacterController : MonoBehaviour
         cameraTransform = Camera.main.transform;
         
         // fix itch.io cursor bug
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         
         if (animationController == null)
         {
@@ -89,9 +89,9 @@ public class PlayerCharacterController : MonoBehaviour
         }
         
         // cursor bug fix
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
-            // lock cursor state until escape pressed
+            // lock cursor state until tab pressed
             if (Cursor.lockState == CursorLockMode.Locked)
             {
                 Cursor.lockState = CursorLockMode.None;
@@ -138,7 +138,7 @@ public class PlayerCharacterController : MonoBehaviour
         // keyboard
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
+        bool isRunning = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
         
         // calculate move direction relative to camera orientation
         Vector3 forward = cameraTransform.forward;
