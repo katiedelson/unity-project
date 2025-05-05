@@ -17,9 +17,9 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
     public float maximumRunVelocity = 2.0f;
 
     [Header("Jump Blend Settings")]
-    public float jumpBlendDuration = 0.5f; // duration for going from idle to full jump
-    public float landingBlendDuration = 1.2f; // duration for landing animation
-    public float crouchPosition = 0.5f; // customizable crouch position in blend tree
+    public float jumpBlendDuration = 0.5f;
+    public float landingBlendDuration = 1.2f; 
+    public float crouchPosition = 0.5f;
     
     // increase performance
     private int VelocityZHash;
@@ -38,17 +38,15 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
     
     void Start()
     {
-        // search the gameobject this script is attached to and get the animator component
         animator = GetComponent<Animator>();
         
-        // increase performance
         VelocityZHash = Animator.StringToHash("VelocityZ");
         VelocityXHash = Animator.StringToHash("VelocityX");
         IsJumpingHash = Animator.StringToHash("isJumping");
         JumpProgressHash = Animator.StringToHash("JumpProgress");
     }
     
-    // handles acceleration and deceleration
+    // acceleration and deceleration
     void changeVelocity(bool forwardPressed, bool leftPressed, bool rightPressed, bool runPressed,
         float currentMaxVelocity)
     {
@@ -87,7 +85,6 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
     }
     
     // handles reset and locking of velocity
-   // handles reset and locking of velocity
     void lockOrResetVelocity(bool forwardPressed, bool leftPressed, bool rightPressed, bool runPressed,
         float currentMaxVelocity)
     {
@@ -165,7 +162,7 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
         switch (currentJumpPhase)
         {
             case JumpPhase.Takeoff:
-                // increase jump progress during takeoff phase
+                // increase jump var
                 jumpProgress += Time.deltaTime / jumpBlendDuration;
                 
                 // move to mid-air pose
@@ -177,12 +174,11 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
                 break;
                 
             case JumpPhase.MidAir:
-                // stay at mid-air pose
                 jumpProgress = 1.0f;
                 break;
                 
             case JumpPhase.Landing:
-                // move from mid-air pose back to crouch pose
+                // move back to crouch
                 jumpProgress -= Time.deltaTime / landingBlendDuration;
                 
                 // clamp to crouch position
@@ -192,44 +188,35 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
                 }
                 break;
         }
-        
-        // update animator parameter to control the blend tree
         animator.SetFloat(JumpProgressHash, jumpProgress);
     }
-
-    // update is called once per frame
+    
     void Update()
     {
-        // input will be true if player is pressing on the passed in key parameter
-        // get key input from player
+        // key input
         bool forwardPressed = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.S);
         bool leftPressed = Input.GetKey(KeyCode.A);
         bool rightPressed = Input.GetKey(KeyCode.D);
         bool runPressed = Input.GetKey(KeyCode.LeftShift);
         bool jumpPressed = Input.GetKeyDown(KeyCode.Space);
         
-        // set current maxVelocity
         float currentMaxVelocity = runPressed ? maximumRunVelocity : maximumWalkVelocity;
         
-        // handle changes in velocity
         changeVelocity(forwardPressed, leftPressed, rightPressed, runPressed, currentMaxVelocity);
         lockOrResetVelocity(forwardPressed, leftPressed, rightPressed, runPressed, currentMaxVelocity);
 
-        // check for jump input directly in controller
-        // backup to ensure the animation state gets updated even if the character controller misses it
+        // backup
         if (jumpPressed && !isJumping)
         {
             StartJump();
         }
-
         UpdateJumpBlendTree();
         
-        // set the parameters to our local variable values
+        
         animator.SetFloat(VelocityZHash, velocityZ);
         animator.SetFloat(VelocityXHash, velocityX);
     }
 
-    // called from character controller
     public void StartJump()
     {
         if (!isJumping)
@@ -238,12 +225,11 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
             jumpProgress = 0f;
             currentJumpPhase = JumpPhase.Takeoff;
             
-            // update animators isJumping parameter to start transition
             animator.SetBool(IsJumpingHash, true);
         }
     }
     
-    // called from character controller when approaching ground
+    // when approaching ground
     public void StartLanding()
     {
         if (isJumping && currentJumpPhase != JumpPhase.Landing)
@@ -258,7 +244,6 @@ public class TwoDimensionalAnimationStateController : MonoBehaviour
         currentJumpPhase = JumpPhase.None;
         jumpProgress = 0f;
         
-        // update the animator's isJumping parameter to exit jump state
         animator.SetBool(IsJumpingHash, false);
         animator.SetFloat(JumpProgressHash, 0f);
     }
